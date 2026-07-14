@@ -29,14 +29,18 @@ import {
   useDeleteEducation,
   useAddSocialLink,
   useDeleteSocialLink,
+  profileKeys,
 } from "@/features/profile/hooks/useProfileQueries";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { ProfileWithRelations } from "@/features/profile/repositories/profileRepository";
+import { FileUpload } from "@/features/upload/components/FileUpload";
 
 // Let's design premium forms directly with standard Tailwind inputs to prevent any missing component errors.
 export default function ProfileEditPage() {
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
 
   if (status === "unauthenticated") {
     redirect("/login");
@@ -228,6 +232,63 @@ export default function ProfileEditPage() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleUpdateProfile} className="space-y-6">
+                      {/* Banner and Avatar Previews */}
+                      <div className="relative mb-6">
+                        {/* Banner preview */}
+                        <div className="border-border/30 relative h-32 w-full overflow-hidden rounded-lg border bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6]">
+                          {profile?.bannerCID && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`https://gateway.pinata.cloud/ipfs/${profile.bannerCID}`}
+                              alt="Profile Banner"
+                              className="h-full w-full object-cover"
+                            />
+                          )}
+                        </div>
+
+                        {/* Avatar preview overlap */}
+                        <div className="border-card bg-surface absolute -bottom-8 left-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 shadow-lg">
+                          {profile?.avatarCID ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`https://gateway.pinata.cloud/ipfs/${profile.avatarCID}`}
+                              alt="Profile Avatar"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="text-muted-foreground h-8 w-8" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Upload widgets grid */}
+                      <div className="grid gap-6 pt-6 pb-2 sm:grid-cols-2">
+                        <FileUpload
+                          type="avatar"
+                          label="Upload Profile Avatar"
+                          acceptLabel="PNG, JPG, WEBP up to 2MB"
+                          onUploadSuccess={() => {
+                            if (walletAddress) {
+                              queryClient.invalidateQueries({
+                                queryKey: profileKeys.byAddress(walletAddress),
+                              });
+                            }
+                          }}
+                        />
+                        <FileUpload
+                          type="banner"
+                          label="Upload Profile Banner"
+                          acceptLabel="PNG, JPG, WEBP up to 5MB"
+                          onUploadSuccess={() => {
+                            if (walletAddress) {
+                              queryClient.invalidateQueries({
+                                queryKey: profileKeys.byAddress(walletAddress),
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+
                       <div className="grid gap-6 sm:grid-cols-2">
                         <div>
                           <label className="text-muted-foreground mb-2 block text-xs font-semibold tracking-wider uppercase">

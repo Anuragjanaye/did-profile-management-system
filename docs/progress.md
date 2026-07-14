@@ -12,7 +12,7 @@ This document tracks the implementation status of the project phase-by-phase.
 | **Phase 2**  | **Wallet Authentication (SIWE)** | **Completed** |
 | **Phase 3**  | **Database & Backend**           | **Completed** |
 | **Phase 4**  | **Profile Management**           | **Completed** |
-| **Phase 5**  | File Storage (IPFS)              | Pending       |
+| **Phase 5**  | **File Storage (IPFS)**          | **Completed** |
 | **Phase 6**  | Blockchain Integration           | Pending       |
 | **Phase 7**  | AI Integration                   | Pending       |
 | **Phase 8**  | Dashboard & UX                   | Pending       |
@@ -23,25 +23,26 @@ This document tracks the implementation status of the project phase-by-phase.
 
 ---
 
-## 🛠️ Phase 4 — Profile Management Details
+## 🛠️ Phase 5 — File Storage (IPFS) Details
 
 ### Completed Tasks
 
-- [x] **Repository Layer:** Updated `ProfileRepository` to return hydrated relation payloads (`skills`, `education`, `experience`, `socialLinks`, `certificates`) for all read/write/update queries.
-- [x] **Zod Validation Schemas:** Composed strict input validations in `src/features/profile/schemas/profileSchemas.ts` with custom chronological validators preventing timeline mismatches.
-- [x] **Server Actions:** Implemented modular, authenticated backend operations (`src/features/profile/actions/profileActions.ts`) for profile upserts and nested relational CRUD operations.
-- [x] **React Query Hooks:** Bound backend operations to type-safe client cache triggers inside `src/features/profile/hooks/useProfileQueries.ts`.
-- [x] **Workspace Edit UI:** Developed a premium, glassmorphism-based profile workspace (`/profile/edit`) incorporating tab-nav sections and status loaders.
-- [x] **Build Check & Verification:** Checked type safety and verified the Next.js production server compiles cleanly with 0 errors/warnings.
+- [x] **Pinata Service:** Built a direct HTTP-based connection wrapper to Pinata IPFS (`src/features/upload/services/pinataService.ts`) referencing the server-validated `PINATA_JWT` secret.
+- [x] **File Validation:** Implemented helper parameters checking size limits (e.g. 2MB avatars, 5MB banners, 10MB certificates/resumes) and MIME format restrictions.
+- [x] **Retry Logic:** Programmed linear backoff retrying upload requests up to 3 times before raising failures.
+- [x] **Upload APIs:** Added dynamic Next.js API route (`/api/upload/[type]`) handling uploads for avatar, banner, resume, and certificate records.
+- [x] **CID storage:** Mapped CIDs to the relational `Upload` schema table and updated `avatarCID` / `bannerCID` columns directly in the `Profile` table.
+- [x] **Upload UI:** Engineered a drag-and-drop file upload zone component (`src/features/upload/components/FileUpload.tsx`) with status state loader animations.
+- [x] **Profile Workspace Integration:** Integrated widgets directly at the top of the profile workspace (`/profile/edit`) providing immediate IPFS gateway image rendering.
 
 ### Blockers or Assumptions
 
-- **Dependency:** Framer Motion for smooth tab transitions and page animations.
+- **Configuration:** Relies on `PINATA_JWT` configured inside environment configuration files.
 
 ### Recommended Next Task
 
-- **Phase 5 — File Storage (IPFS):** Implement secure file upload endpoints (`/api/ipfs/upload`) using Pinata SDK/API to store avatar, banner, and certificate uploads onto IPFS.
+- **Phase 6 — Blockchain Integration:** Design and deploy the `ProfileRegistry.sol` smart contract on Sepolia. Implement ethers/wagmi hooks to sync profile IPFS CIDs onto the ledger.
 
 ---
 
-_Last Updated: 2026-07-14 23:45 Local Time_
+_Last Updated: 2026-07-14 23:50 Local Time_
