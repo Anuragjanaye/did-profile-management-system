@@ -10,7 +10,7 @@ This document tracks the implementation status of the project phase-by-phase.
 | ------------ | -------------------------------- | ------------- |
 | **Phase 1**  | **Project Foundation**           | **Completed** |
 | **Phase 2**  | **Wallet Authentication (SIWE)** | **Completed** |
-| **Phase 3**  | Database & Backend               | Pending       |
+| **Phase 3**  | **Database & Backend**           | **Completed** |
 | **Phase 4**  | Profile Management               | Pending       |
 | **Phase 5**  | File Storage (IPFS)              | Pending       |
 | **Phase 6**  | Blockchain Integration           | Pending       |
@@ -23,27 +23,27 @@ This document tracks the implementation status of the project phase-by-phase.
 
 ---
 
-## 🛠️ Phase 2 — Wallet Authentication Details
+## 🛠️ Phase 3 — Database & Backend Details
 
 ### Completed Tasks
 
-- [x] **Auth.js v5 Setup:** Integrated `next-auth@5.0.0-beta.25` configured for serverless runtime.
-- [x] **SIWE message validation:** Cryptographically signs SIWE challenges. Consumes nonces reactively on credentials authentication to prevent replay attacks.
-- [x] **Wagmi v2 & RainbowKit Integration:** Configured Sepolia parameters inside `src/config/chains.ts` and wrapped application using `WagmiProvider` and client-side `SessionProvider` inside `AppProviders.tsx`.
-- [x] **Connected Wallet dropdown button:** Styled connect button with loading states, custom avatar backgrounds, and disconnect actions.
-- [x] **Custom Auth Hook:** Coordinates challenge generation, wallet signature dialog prompts, address updates, and logout actions.
-- [x] **Edge-compatible Middleware:** Setup redirect guards on `/login` and protected routes (`/dashboard`, `/profile/edit`, `/settings`).
-- [x] **Protected pages:** Scaffolding the dashboard landing page at `/dashboard` displaying session data.
+- [x] **Prisma Schema:** Created `prisma/schema.prisma` with 17 normalized relational models including soft delete tags (`deletedAt`), custom postgres extension hooks (`pg_trgm` GIN indexes), and key cascades.
+- [x] **Neon Configuration:** Configured secure WS transaction properties under `src/config/database.ts`.
+- [x] **Prisma Client:** Instantiated centralized database client with globalThis caching contexts (`src/lib/db/prisma.ts`) preventing connection pool exhaustions.
+- [x] **Repository Layer:** Scaffolded type-safe database queries inside `UserRepository` and `ProfileRepository` excluding soft-deleted records.
+- [x] **Database utilities:** Built database connectivity checkers (`pingDatabase()`) and structured transaction wrapper helpers (`withTransaction()`). Wired dynamic database checks directly into the `/api/health` API endpoint.
+- [x] **Seed Script:** Populated default relational mock datasets (education, skills, certificates, experiences) nested inside atomic transactions (`prisma/seed.ts`).
+- [x] **Migrations:** Evaluated offline DDL scripts and generated the initial database migration under `prisma/migrations/20260714233000_init/migration.sql`.
 
 ### Blockers or Assumptions
 
-- **Assumption:** Decoupled verification handles nonces using secure HTTP-only cookies, avoiding database accesses in Phase 2 as requested.
-- **Assumed Environment:** Installed `ethers` alongside `viem` to resolve siwe peer dependencies during turbopack compilation.
+- **Assumption:** Configured Prisma client with serverless fullTextSearchPostgres and postgresqlExtensions flags to support GIN indexes for PostgreSQL search.
+- **Assumed Environment:** Installed `@neondatabase/serverless` and `ts-node` support wrappers to enable execution of local DB commands.
 
 ### Recommended Next Task
 
-- **Phase 3 — Database & Backend:** Configure Prisma, initialize Prisma Client, define schema models for Profiles, Skills, Experience, and Certificates, and execute migrations.
+- **Phase 4 — Profile Management:** Implement profile creation, reading, updates, and deletion (CRUD) using repository wrappers. Add schema validations, skills catalog, and resume upload flows.
 
 ---
 
-_Last Updated: 2026-07-14 23:25 Local Time_
+_Last Updated: 2026-07-14 23:35 Local Time_

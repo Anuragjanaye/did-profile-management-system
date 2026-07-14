@@ -1,0 +1,371 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pg_trgm]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "fullTextSearchPostgres"]
+}
+
+// ─────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  ORGANIZATION
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+enum UploadType {
+  AVATAR
+  BANNER
+  RESUME
+  CERTIFICATE
+  DOCUMENT
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum SocialPlatform {
+  GITHUB
+  LINKEDIN
+  TWITTER
+  PORTFOLIO
+  WEBSITE
+  OTHER
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id            String               @id @default(uuid()) @db.Uuid
+  walletAddress String               @unique
+  username      String               @unique
+  email         String?
+  ensName       String?              @unique
+  avatar        String?
+  role          UserRole             @default(USER)
+  status        UserStatus           @default(ACTIVE)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  
+  // Relations
+  profile       Profile?
+  sessions      Session[]
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+  aiRequests    AIRequest[]
+  memberships   OrganizationMember[]
+
+  @@index([walletAddress])
+  @@index([username])
+  @@index([createdAt])
+  @@index([walletAddress, status])
+}
+
+model Profile {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  displayName        String
+  headline           String?
+  bio                String?
+  location           String?
+  website            String?
+  avatarCID          String?
+  bannerCID          String?
+  profileScore       Int                @default(0)
+  verificationStatus VerificationStatus @default(PENDING)
+  visibility         Visibility         @default(PUBLIC)
+  isComplete         Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  deletedAt          DateTime?          // Soft Delete
+
+  // Relations
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills            Skill[]
+  education         Education[]
+  experience        Experience[]
+  certificates      Certificate[]
+  socialLinks       SocialLink[]
+  uploads           Upload[]
+  aiAnalyses        AIAnalysis[]
+  blockchainRecords BlockchainRecord[]
+
+  @@index([profileScore])
+  @@index([visibility])
+  @@index([verificationStatus])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([userId, createdAt])
+}
+
+model Skill {
+  id        String     @id @default(uuid()) @db.Uuid
+  profileId String     @db.Uuid
+  name      String
+  level     SkillLevel @default(BEGINNER)
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([name])
+}
+
+model Education {
+  id           String    @id @default(uuid()) @db.Uuid
+  profileId    String    @db.Uuid
+  institution  String
+  degree       String
+  fieldOfStudy String
+  startYear    Int
+  endYear      Int?
+  deletedAt    DateTime? // Soft Delete
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Experience {
+  id          String    @id @default(uuid()) @db.Uuid
+  profileId   String    @db.Uuid
+  company     String
+  role        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  deletedAt   DateTime? // Soft Delete
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Certificate {
+  id            String    @id @default(uuid()) @db.Uuid
+  profileId     String    @db.Uuid
+  title         String
+  issuer        String
+  issueDate     DateTime
+  credentialURL String?
+  cid           String?
+  deletedAt     DateTime? // Soft Delete
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([cid])
+}
+
+model SocialLink {
+  id        String         @id @default(uuid()) @db.Uuid
+  profileId String         @db.Uuid
+  platform  SocialPlatform
+  url       String
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Upload {
+  id         String     @id @default(uuid()) @db.Uuid
+  profileId  String     @db.Uuid
+  fileName   String
+  mimeType   String
+  size       Int
+  cid        String
+  url        String
+  uploadedAt DateTime   @default(now())
+  deletedAt  DateTime?  // Soft Delete
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([cid])
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  deletedAt DateTime?        // Soft Delete
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  action    String
+  metadata  Json     @default("{}")
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  expiresAt    DateTime
+  sessionToken String   @unique
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  logo      String?
+  ownerId   String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  members OrganizationMember[]
+
+  @@index([slug])
+}
+
+model OrganizationMember {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  role           String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model AIAnalysis {
+  id              String   @id @default(uuid()) @db.Uuid
+  profileId       String   @db.Uuid
+  score           Int      @default(0)
+  summary         String
+  strengths       String[]
+  weaknesses      String[]
+  recommendations String[]
+  createdAt       DateTime @default(now())
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([profileId, createdAt])
+}
+
+model AIRequest {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  model        String
+  tokens       Int      @default(0)
+  responseTime Int      @default(0) // in milliseconds
+  success      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model BlockchainRecord {
+  id              String   @id @default(uuid()) @db.Uuid
+  profileId       String   @db.Uuid
+  walletAddress   String
+  contractAddress String
+  chainId         Int
+  transactionHash String   @unique
+  blockNumber     Int
+  cid             String
+  verifiedAt      DateTime @default(now())
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([transactionHash])
+  @@index([contractAddress])
+  @@index([walletAddress, transactionHash])
+}
+
+model SmartContractEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  transactionHash String   @unique
+  eventName       String
+  payload         Json
+  blockNumber     Int
+  timestamp       DateTime
+
+  @@index([transactionHash])
+  @@index([eventName])
+}
