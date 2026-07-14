@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted-foreground));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  :root {
+    /* ────────────── Brand Colors ────────────── */
+    --color-primary: 37 99% 43%; /* #2563EB — Blue */
+    --color-secondary: 262 83% 57%; /* #7C3AED — Purple */
+    --color-accent: 189 94% 43%; /* #06B6D4 — Cyan */
+
+    /* ────────────── Status Colors ────────────── */
+    --color-success: 142 71% 45%; /* #22C55E */
+    --color-warning: 38 92% 50%; /* #F59E0B */
+    --color-danger: 0 84% 60%; /* #EF4444 */
+
+    /* ────────────── Light Theme ────────────── */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 240 10% 10%; /* #18181B */
+    --surface: 210 40% 98%; /* #F8FAFC */
+    --surface-elevated: 0 0% 96%;
+    --border: 240 6% 90%; /* #E4E4E7 */
+    --text-secondary: 240 4% 32%; /* #52525B */
+    --muted: 240 5% 45%; /* #71717A */
+
+    /* shadcn/ui compatible tokens */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 10%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 10% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --input: 240 6% 90%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* ────────────── Dark Theme (Default) ────────────── */
+    --background: 240 10% 4%; /* #09090B */
+    --foreground: 0 0% 98%; /* #FAFAFA */
+    --surface: 240 4% 9%; /* #18181B */
+    --surface-elevated: 240 4% 16%; /* #27272A */
+    --border: 240 4% 24%; /* #3F3F46 */
+    --text-secondary: 240 5% 63%; /* #A1A1AA */
+    --muted: 240 4% 44%; /* #71717A */
+
+    /* shadcn/ui compatible tokens */
+    --card: 240 4% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 4% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted-foreground: 240 5% 63%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 240 4% 16%;
+    --ring: 221 83% 53%;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    min-height: 100dvh;
+  }
+
+  /* ────────────── Focus Styles (WCAG 2.2 AA) ────────────── */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ────────────── Scrollbar Styling ────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--surface));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted));
+  }
+
+  /* ────────────── Reduced Motion ────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
