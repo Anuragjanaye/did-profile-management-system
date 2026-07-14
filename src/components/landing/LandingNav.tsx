@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Wallet } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ConnectWalletButton } from "@/features/auth/components/ConnectWalletButton";
 import { SITE_CONFIG, NAV_LINKS } from "@/config/site";
 
 /**
@@ -46,15 +48,7 @@ export function LandingNav() {
         </nav>
 
         {/* CTA */}
-        <Link
-          href="/login"
-          className={cn(
-            "focus-visible:ring-ring inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-3 text-sm font-medium text-white transition-all hover:bg-[#2563EB]/90 focus-visible:ring-2 focus-visible:outline-none"
-          )}
-        >
-          <Wallet className="h-4 w-4" aria-hidden="true" />
-          Connect Wallet
-        </Link>
+        <ConnectWalletButton />
       </div>
     </header>
   );

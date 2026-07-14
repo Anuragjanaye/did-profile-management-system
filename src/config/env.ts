@@ -88,10 +88,13 @@ function validateClientEnv() {
   return result.data;
 }
 
-// In development, skip validation for variables not yet set
-// In production, always validate all variables
+// In production runtime, validate all variables strictly.
+// During build phase or development, allow partial schemas so build pipelines don't crash.
+const isBuildTime =
+  process.env.NEXT_PHASE === "phase-production-build" || process.env.IS_BUILD === "true";
+
 export const env =
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV === "production" && !isBuildTime
     ? { server: validateServerEnv(), client: validateClientEnv() }
     : {
         server: serverEnvSchema.partial().parse(process.env),
