@@ -5,6 +5,10 @@ import { SiweMessage } from "siwe";
 import { getStoredNonce, clearStoredNonce } from "@/features/auth/actions/authActions";
 
 export const authConfig: NextAuthConfig = {
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "development-fallback-secret-at-least-32-chars-long-for-did-profile",
   providers: [
     CredentialsProvider({
       name: "SIWE",

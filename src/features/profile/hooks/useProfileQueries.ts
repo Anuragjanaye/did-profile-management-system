@@ -5,15 +5,20 @@ import { toast } from "sonner";
 import {
   getProfileByAddressAction,
   upsertProfileAction,
-  addSkillAction,
-  deleteSkillAction,
+} from "@/features/profile/actions/profileActions";
+import { addSkillAction, deleteSkillAction } from "@/features/profile/actions/skillActions";
+import {
   addExperienceAction,
   deleteExperienceAction,
+} from "@/features/profile/actions/experienceActions";
+import {
   addEducationAction,
   deleteEducationAction,
+} from "@/features/profile/actions/educationActions";
+import {
   addSocialLinkAction,
   deleteSocialLinkAction,
-} from "@/features/profile/actions/profileActions";
+} from "@/features/profile/actions/socialActions";
 
 // Unique query keys for caching profile domains
 export const profileKeys = {
